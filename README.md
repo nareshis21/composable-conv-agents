@@ -1,4 +1,4 @@
-# C++ Full-Duplex Voice Agent (Research Benchmarking Suite)
+# Composable Conversational Agents: Real-Time Full-Duplex Voice Interaction Without End-to-End Training
 
 A high-performance, ultra-low latency C++ Voice Agent designed for research into natural human-computer interaction. It implements a "PersonaPlex-style" interaction model using a modular cascade (Whisper ASR, Llama LLM, Piper TTS) with advanced full-duplex features.
 
