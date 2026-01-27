@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voice Agent Benchmark Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --bg: #030712;
+            --card: rgba(17, 24, 39, 0.7);
+            --accent-primary: #3b82f6;
+            --accent-secondary: #a855f7;
+            --accent-success: #10b981;
+            --text-main: #f3f4f6;
+            --text-dim: #9ca3af;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg);
+            background-image: radial-gradient(circle at 50% -20%, #1e1b4b 0%, var(--bg) 60%);
+            color: var(--text-main);
+            min-height: 100vh;
+            padding: 2rem;
+            overflow-x: hidden;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        h1 {
+            font-weight: 800;
+            font-size: 2rem;
+            background: linear-gradient(to right, #60a5fa, #c084fc);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .status-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 9999px;
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: var(--accent-success);
+            font-size: 0.875rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--accent-success);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--accent-success);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: var(--card);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 1.5rem;
+            border-radius: 1.5rem;
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .stat-label {
+            color: var(--text-dim);
+            font-size: 0.875rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-value {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 1.5rem;
+        }
+
+        .chart-container,
+        .table-container {
+            background: var(--card);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 1.5rem;
+            border-radius: 1.5rem;
+        }
+
+        .table-container {
+            height: 500px;
+            overflow-y: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        th {
+            padding: 1rem;
+            color: var(--text-dim);
+            font-weight: 600;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 0.875rem;
+        }
+
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            font-size: 0.9375rem;
+        }
+
+        .latency-pill {
+            padding: 0.25rem 0.6rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            font-size: 0.75rem;
+            display: inline-block;
+        }
+
+        .very-fast {
+            background: rgba(16, 185, 129, 0.1);
+            color: #10b981;
+        }
+
+        .fast {
+            background: rgba(59, 130, 246, 0.1);
+            color: #3b82f6;
+        }
+
+        .slow {
+            background: rgba(245, 158, 11, 0.1);
+            color: #f59e0b;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>Antigravity Research Dashboard</h1>
+        <div class="status-badge">
+            <div class="status-dot"></div>
+            LIVE BENCHMARKING
+        </div>
+    </header>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-label">P50 Total E2E</div>
+            <div class="stat-value" id="p50-val">0ms</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">P90 Total E2E</div>
+            <div class="stat-value" id="p90-val">0ms</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Avg ASR Latency</div>
+            <div class="stat-value" id="asr-val">0ms</div>
+        </div>
+        <div class="stat-card" style="border-bottom: 4px solid var(--accent-secondary);">
+            <div class="stat-label">Avg LLM TTFT</div>
+            <div class="stat-value" id="llm-val">0ms</div>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="chart-container">
+            <h3 style="margin-bottom: 1rem;">Latency Over Time</h3>
+            <canvas id="latencyChart"></canvas>
+        </div>
+        <div class="table-container">
+            <h3 style="margin-bottom: 1rem;">History</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Turn</th>
+                        <th>Phrase</th>
+                        <th>E2E</th>
+                    </tr>
+                </thead>
+                <tbody id="metrics-body">
+                    <!-- Data here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        let chart;
+        const config = {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [
+                    {
+                        label: 'Total E2E (ms)',
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        data: [],
+                        fill: true,
+                        tension: 0.4
+                    },
+                    {
+                        label: 'LLM TTFT (ms)',
+                        borderColor: '#a855f7',
+                        data: [],
+                        tension: 0.4
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' } },
+                    x: { grid: { display: false } }
+                },
+                plugins: {
+                    legend: { position: 'top', labels: { color: '#f3f4f6' } }
+                }
+            }
+        };
+
+        function initChart() {
+            const ctx = document.getElementById('latencyChart').getContext('2d');
+            chart = new Chart(ctx, config);
+        }
+
+        async function updateDashboard() {
+            try {
+                const res = await fetch('/api/metrics');
+                const json = await res.json();
+
+                if (json.error) return;
+
+                // Update Stats
+                document.getElementById('p50-val').innerText = `${Math.round(json.stats.p50_e2e)}ms`;
+                document.getElementById('p90-val').innerText = `${Math.round(json.stats.p90_e2e)}ms`;
+                document.getElementById('asr-val').innerText = `${Math.round(json.stats.avg_asr)}ms`;
+                document.getElementById('llm-val').innerText = `${Math.round(json.stats.avg_llm)}ms`;
+
+                // Update Table
+                const body = document.getElementById('metrics-body');
+                body.innerHTML = '';
+                const displayData = [...json.data].reverse(); // Latest first
+                displayData.forEach(row => {
+                    const tr = document.createElement('tr');
+                    const e2eVal = Math.round(row.Total_E2E);
+                    const pillClass = e2eVal < 800 ? 'very-fast' : (e2eVal < 1500 ? 'fast' : 'slow');
+
+                    tr.innerHTML = `
+                        <td style="color: var(--text-dim);">#${row.TurnID}</td>
+                        <td style="font-weight: 500;">${row.UserText || 'N/A'}</td>
+                        <td><span class="latency-pill ${pillClass}">${e2eVal}ms</span></td>
+                    `;
+                    body.appendChild(tr);
+                });
+
+                // Update Chart
+                const labels = json.data.map(r => r.TurnID);
+                const e2eData = json.data.map(r => r.Total_E2E);
+                const llmData = json.data.map(r => r.LLM_TTFT);
+
+                chart.data.labels = labels;
+                chart.data.datasets[0].data = e2eData;
+                chart.data.datasets[1].data = llmData;
+                chart.update('none'); // Update without animation for continuous feel
+
+            } catch (e) { console.error(e); }
+        }
+
+        initChart();
+        updateDashboard();
+        setInterval(updateDashboard, 2000); // Pulse every 2s
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,48 @@
+# Models (Large files)
+models/
+*.onnx
+*.onnx.json
+*.gguf
+*.bin
+
+# Build & Binaries
+build/
+bin/
+Release/
+Debug/
+x64/
+*.exe
+*.dll
+*.pdb
+*.obj
+*.lib
+*.exp
+*.ilk
+
+# Audio & Research Artifacts
+test_audio/
+output.wav
+test_bark.wav
+test_maya.wav
+tts_input.txt
+benchmark_results.csv
+
+# Logs
+*_log.txt
+*.log
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+env/
+venv/
+ENV/
+
+# IDEs
+.vscode/
+.idea/
+*.user
+*.suo
+*.sln.docstates

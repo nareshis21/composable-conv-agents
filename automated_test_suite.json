@@ -1,0 +1,50 @@
+{
+    "5_word": [
+        "What time is it now",
+        "Tell me a quick fact",
+        "Explain this very briefly",
+        "How fast can you respond",
+        "Start talking right away please",
+        "Do you hear me now",
+        "Answer me as soon possible",
+        "Say something interesting quickly",
+        "Can you reply immediately please",
+        "How quickly do you react"
+    ],
+    "10_word": [
+        "Can you explain what full duplex conversation means clearly",
+        "Tell me something interesting about artificial intelligence systems briefly",
+        "How does real time speech processing work in practice",
+        "Explain modular conversational agents in a simple way",
+        "What happens when humans interrupt each other while speaking",
+        "Describe why latency matters in real time voice interaction",
+        "How do conversational agents handle overlapping speech safely",
+        "Explain how speech systems detect when users stop talking",
+        "Why are end to end voice models hard to control",
+        "Tell me how fast your response system is designed"
+    ],
+    "questions": [
+        "What is full duplex communication?",
+        "Why is real time response important in conversation?",
+        "How do humans take turns while speaking?",
+        "What causes delays in voice assistants?",
+        "Why are modular AI systems useful?",
+        "What is voice activity detection?",
+        "How do speech systems handle interruptions?",
+        "What makes a conversation feel natural?",
+        "Why does latency affect user experience?",
+        "How do conversational agents differ from chatbots?"
+    ],
+    "interruptions": [
+        "Wait stop",
+        "Hold on a second",
+        "That’s not what I meant",
+        "Let me rephrase that",
+        "Stop talking please",
+        "No that’s wrong",
+        "Can you explain differently",
+        "I want to change the question",
+        "Pause I need clarification",
+        "Actually never mind"
+    ]
+}
