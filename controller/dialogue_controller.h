@@ -14,13 +14,14 @@
 class DialogueController {
 public:
     LLMStream* llm;
+    LLMStream* monitorLLM;
     PersonaState* persona;
     TTSEngine* tts;
 
     std::atomic<bool> agentSpeaking;
     float interruptConfidence;
 
-    DialogueController(LLMStream* l, PersonaState* p, TTSEngine* t);
+    DialogueController(LLMStream* l, LLMStream* m, PersonaState* p, TTSEngine* t);
     
     void onUserSpeech(const std::string& text, bool whileAgentSpeaking, double asr_latency_ms);
     void handleInterrupt();
