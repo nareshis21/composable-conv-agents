@@ -3,22 +3,22 @@
 A high-performance, ultra-low latency C++ Voice Agent designed for research into natural human-computer interaction. It implements a "PersonaPlex-style" interaction model using a modular cascade (Whisper ASR, Llama LLM, Piper TTS) with advanced full-duplex features.
 
 ## 🚀 Key Features
+- **Parallel Full-Duplex Architecture**: Uses **Two LLMs** simultaneously—one for speaking, one for listening—to allow natural interruptions without simple keyword matching.
 - **Ultra-Low Latency**: End-to-end response times in the sub-800ms range (hardware dependent).
-- **Full-Duplex Interruption**: Instantly cancels LLM generation and TTS playback if the user interrupts the agent.
-- **Backchanneling**: Natural interjections (e.g., "uh-huh," "right") to signal active listening.
+- **Intelligent Barge-In**: The "Monitor LLM" intelligently distinguishes between true interruptions (e.g., "Stop!") and backchanneling (e.g., "Uh-huh"), allowing the agent to continue speaking when appropriate.
 - **Chat History**: Maintains short-term conversational context for natural follow-up questions.
 - **Research Dashboard**: A live web-based dashboard (Flask + Chart.js) to visualize P50/P90 latencies and tokens-per-second.
-- **Automated Test Bench**: One-click scripts to "replay" recorded speech sets and collect scientific benchmarking data.
 
 ---
 
 ## 🛠️ Technology Stack
 - **ASR**: `whisper.cpp` (Medium.en model, Q5_0 quantization)
-- **LLM**: `llama.cpp` (Qwen 2.5 3B Instruct, Q4_K_M quantization)
+- **Speaker LLM**: `llama.cpp` (Qwen 2.5 3B Instruct, Q4_K_M) - Drives conversation.
+- **Monitor LLM**: `llama.cpp` (Qwen 2.5 3B Instruct, Q4_K_M) - Classification side-channel.
 - **TTS**: [Piper](https://github.com/rhasspy/piper) (Lessac Medium voice)
 - **VAD**: [Silero VAD](https://github.com/snakers4/silero-vad) via ONNX Runtime
 - **Build System**: CMake (MSVC on Windows / GCC on Linux)
-- **Hardware Acceleration**: Full CUDA support for Whisper and Llama inference.
+- **Hardware Acceleration**: **REQUIRED** - Full CUDA support. Dual LLM execution requires ~6GB VRAM minimum.
 
 ---
 
