@@ -2,13 +2,31 @@
 #include "../utils/perf_monitor.h" // Research: Metrics logging
 #include <cstdlib> // For rand() placeholder
 
-DialogueController::DialogueController(LLMStream* l, PersonaState* p, TTSEngine* t)
-    : llm(l), persona(p), tts(t), agentSpeaking(false), interruptConfidence(0.0f) {}
+DialogueController::DialogueController(LLMStream* l, LLMStream* m, PersonaState* p, TTSEngine* t)
+    : llm(l), monitorLLM(m), persona(p), tts(t), agentSpeaking(false), interruptConfidence(0.0f) {}
 
 void DialogueController::onUserSpeech(const std::string& text, bool whileAgentSpeaking, double asr_latency_ms) {
     if (whileAgentSpeaking) {
-        interruptConfidence += 0.5f;
-        if (interruptConfidence > 1.0f) handleInterrupt();
+        std::cout << "[Parallel] Agent speaking. Checking input with Monitor LLM..." << std::endl;
+        
+        // Quick verify prompt for the Monitor LLM
+        std::string checkPrompt = "<|im_start|>system\nYou are a conversation manager. The user just said: \"" + text + "\" while the agent was speaking. Does this input require the agent to stop immediately or change topic? Answer only YES or NO.\nExamples:\nUser: \"Stop.\"\nAssistant: YES\nUser: \"Yeah.\"\nAssistant: NO\nUser: \"That's wrong.\"\nAssistant: YES\n<|im_end|>\n<|im_start|>assistant\n";
+        
+        std::string decision = "";
+        // Use the monitor LLM instance (parallel processing)
+        monitorLLM->generate(checkPrompt, [&](const std::string& token){
+            decision += token;
+        });
+        
+        std::cout << "[Parallel] Monitor Decision: " << decision << std::endl;
+
+        if (decision.find("YES") != std::string::npos || decision.find("Yes") != std::string::npos) {
+             handleInterrupt();
+             // Respond to the new text immediately after interrupting
+             respond(text, asr_latency_ms);
+        } else {
+             std::cout << "[Parallel] Ignoring interruption (Classified as Backchannel/Noise)." << std::endl;
+        }
     } else {
         respond(text, asr_latency_ms);
     }
