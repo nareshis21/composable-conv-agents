@@ -120,7 +120,7 @@ void processing_thread(VAD* vad, WhisperASR* asr, DialogueController* controller
                     std::vector<int16_t> buffer_copy = audio_buffer;
                     
                     std::thread([asr, controller, buffer_copy, &monitor](){
-                        if (response_in_progress) return;
+                        // if (response_in_progress) return; // PARALLEL FLOW: Allow processing
                         response_in_progress = true;
 
                         asr->transcribe(buffer_copy, [&](const std::string& text){
@@ -170,9 +170,12 @@ int main(int argc, char** argv) {
     
     std::string modelPath = "models/qwen2.5-3b-instruct-q4_k_m.gguf"; 
     LLMStream llm(modelPath);
+    std::cout << "[Init] Loading secondary Monitor LLM for parallel processing..." << std::endl;
+    LLMStream monitorLLM(modelPath); // Second instance for Full Duplex Listening
+    
     WhisperASR asr("models/ggml-medium.en-q5_0.bin");
     TTSEngine tts;
-    DialogueController controller(&llm, &persona, &tts);
+    DialogueController controller(&llm, &monitorLLM, &persona, &tts);
 
     std::thread worker(processing_thread, &vad, &asr, &controller);
     
@@ -184,10 +187,11 @@ int main(int argc, char** argv) {
         queue_cv.notify_one();
     });
 
-    std::cout << "\n[CLI] Automated Test Mode Active." << std::endl;
-    std::cout << "[CLI]  - Type 'text: hello' to simulate speech input." << std::endl;
-    std::cout << "[CLI]  - Type 'file: test_audio/file.wav' to run ASR on a file." << std::endl;
-    std::cout << "[CLI]  - Type 'quit' to exit.\n" << std::endl;
+    std::cout << "\n[System] Microphone is LIVE. You can speak now." << std::endl;
+    std::cout << "[System] Or use the CLI for testing:" << std::endl;
+    std::cout << "  - Type 'text: hello' to simulate speech input." << std::endl;
+    std::cout << "  - Type 'file: test_audio/file.wav' to run ASR on a file." << std::endl;
+    std::cout << "  - Type 'quit' to exit.\n" << std::endl;
 
     std::string input;
     while (running && std::getline(std::cin, input)) {
