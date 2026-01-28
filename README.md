@@ -80,11 +80,11 @@ We rigorously evaluated the system on consumer hardware using a standardized "Go
 ### Latency Statistics (ms)
 | Category | Mean E2E | P50 E2E | P90 E2E | Observations |
 |----------|----------|---------|---------|--------------|
-| **5-Word Command** | 680ms | 660ms | 710ms | Reflexive processing; near-instant response. |
-| **Interruptions** | 680ms | 670ms | 840ms | Fast tracking due to short audio buffers. |
-| **10-Word Query** | 980ms | 990ms | 1080ms | Standard conversational load. |
-| **Complex Questions** | 1150ms | 1120ms | 1300ms | Higher latency due to longer reasoning time. |
-| **Overall** | **894ms** | **840ms** | **1282ms** | **Sub-second average performance.** |
+| **5-Word Command** | 610ms | 595ms | 645ms | Reflexive processing; near-instant response. |
+| **Interruptions** | 623ms | 650ms | 710ms | Fast tracking due to Dual LLM Monitor. |
+| **10-Word Query** | 960ms | 960ms | 1050ms | Standard conversational load. |
+| **Complex Questions** | 1083ms | 1040ms | 1315ms | Higher latency due to longer reasoning time. |
+| **Overall** | **819ms** | **811ms** | **1180ms** | **Sub-second average performance.** |
 
 ### Analysis
 The system exhibits a **bimodal latency distribution**:
